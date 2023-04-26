@@ -159,26 +159,72 @@
     displayArray(true, $alphabet_numbers);
     ?>
 
-    <!-- The following code gathers information from the HTML field with the name parameter of
-     field_id and assigns it to a variable. GET appends data to URL, POST does not.--> 
+    <!-- FROM PHP STUFF -->
+    <?php
+    $miss_name = "";
+    $name = "";
+    $email = "";
+    $miss_email = "";
+    $email = "";
+    $miss_email = "";
+    $website = "";
+    $miss_website = "";
+
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
+        //name field varify
+        if (empty($_POST["name"])) {
+            $miss_name = "Name is required";
+        } else {
+            $name = verify_input($_POST["name"]);
+            // check if name only contains letters and whitespace
+            if (!preg_match("/^[a-zA-Z-' ]*$/",$name)) {
+                $miss_name = "Only letters and white space allowed";
+            }
+        }
+        // email field verify
+        if (empty($_POST["email"])) {
+            $miss_email = "Email is required";
+        } else {
+            $email = verify_input($_POST["email"]);
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $miss_email = "Invalid email format";
+            }
+        }
+        // website field verify
+        if (empty($_POST["website"])){
+            $miss_website = "Website required";
+        } else {
+            $website = verify_input($_POST["website"]);
+            if (!preg_match("/\b(?:(?:https?|ftp):\/\/|www\.)[-a-z0-9+&@#\/%?=~_|!:,.;]*[-a-z0-9+&@#\/%=~_|]/i",$website)) {
+                $miss_website = "Invalid URL";
+            }
+        }
+
+    }
+
+    function verify_input($data) {
+        $data = trim($data);
+        $data = stripslashes($data);
+        $data = htmlspecialchars($data);
+        return $data;
+      }
+    ?>
+
+    <!-- HTML stuff -->
     <form method="post" action="<?php echo $_SERVER['PHP_SELF'];?>">
-    Name: <input type="text" name="field_id">
+        <input placeholder="name" type="text" name="name">
+        <span class="error">* <?php echo $miss_name;?></span>
+        <br>
+        <input placeholder="email" type="text" name="email">
+        <span class="error">* <?php echo $miss_email;?></span>
+        <br>
+        <input placeholder="website" type="text" name="website">
+        <span class="error">* <?php echo $miss_website;?></span>    
+
     <br>
     <button type="submit">Submit</button>
     </form>
-
-    <?php
-        if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        // collect value of input field
-        $name = $_POST['field_id']; //ensure the request received is from the field 'field id'
-        
-        if (empty($name)) { //if the name defined variable is empty (field_id) is empty
-            echo "Name is empty";
-        } else { // otherwise
-            echo "Hello, " . $name . "!"; 
-        }
-    }
-    ?>
     
 </body>
 </html>
